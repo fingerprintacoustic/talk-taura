@@ -238,6 +238,7 @@
       <button onclick="event.stopPropagation();speakCurrent()">🔊 Hear it</button>
       <button id="recordBtn" onclick="event.stopPropagation();toggleRecord()">🎙️ Record my voice</button>
       <button id="playRecBtn" onclick="event.stopPropagation();playRecording()">▶️ Play my recording</button>
+      <button id="downloadRecBtn" onclick="event.stopPropagation();downloadRecording()">⬇️ Download my recording</button>
     </div>
     <div class="card-nav">
       <button onclick="prevCard()">&larr; Previous</button>
@@ -681,8 +682,12 @@ function recKey(){
 }
 function updateRecordButtons(){
   const playBtn = document.getElementById('playRecBtn');
-  playBtn.disabled = !recordings[recKey()];
-  playBtn.style.opacity = recordings[recKey()] ? 1 : .5;
+  const dlBtn = document.getElementById('downloadRecBtn');
+  const has = !!recordings[recKey()];
+  playBtn.disabled = !has;
+  playBtn.style.opacity = has ? 1 : .5;
+  dlBtn.disabled = !has;
+  dlBtn.style.opacity = has ? 1 : .5;
 }
 async function toggleRecord(){
   const btn = document.getElementById('recordBtn');
@@ -716,6 +721,19 @@ function playRecording(){
   const url = recordings[recKey()];
   if(!url) return;
   new Audio(url).play();
+}
+async function downloadRecording(){
+  const url = recordings[recKey()];
+  if(!url) return;
+  const w = VOCAB[currentCategory].words[cardIndex];
+  const safeName = (w.sn || w.en).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
+  const blob = await (await fetch(url)).blob();
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `${currentCategory}-${safeName}.webm`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 }
 
 /* ---------- Vocabulary quiz ---------- */
