@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Talk, Taura — Learn Shona &amp; English</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;500;600;700&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FBF5EA;
+    --ink:#2A2117;
+    --gold:#B8862B;
+    --teal:#2F6E68;
+    --clay:#B4502F;
+    --slate:#786F62;
+    --line:#E4D9C4;
+    --card:#FFFFFF;
+    --good:#2F6E68;
+    --bad:#B4502F;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Work Sans',sans-serif;
+    line-height:1.5;
+    padding-bottom:60px;
+  }
+  .wrap{max-width:760px;margin:0 auto;padding:0 20px;}
+  h1,h2,h3{font-family:'Spectral',serif;font-weight:600;margin:0 0 8px;}
+  h1{font-size:2.1rem;letter-spacing:.2px;}
+  h2{font-size:1.4rem;}
+  .eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:.72rem;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--gold);
+    margin:0 0 6px;
+  }
+  a{color:var(--clay);}
+
+  /* Header */
+  header{
+    padding:52px 0 34px;
+    background:
+      repeating-linear-gradient(115deg, transparent 0 26px, rgba(184,134,43,.10) 26px 27px),
+      repeating-linear-gradient(25deg, transparent 0 26px, rgba(47,110,104,.08) 26px 27px);
+    border-bottom:1px solid var(--line);
+  }
+  header p.tagline{color:var(--slate);font-size:1.02rem;max-width:520px;margin:0 0 22px;}
+  .dir-toggle{
+    display:inline-flex;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:999px;
+    padding:4px;
+    gap:2px;
+  }
+  .dir-toggle button{
+    border:none;
+    background:transparent;
+    font-family:'Work Sans',sans-serif;
+    font-weight:600;
+    font-size:.88rem;
+    padding:9px 16px;
+    border-radius:999px;
+    cursor:pointer;
+    color:var(--slate);
+    transition:.15s;
+  }
+  .dir-toggle button.active{background:var(--ink);color:var(--paper);}
+
+  section{padding:38px 0;border-bottom:1px solid var(--line);}
+  section:last-of-type{border-bottom:none;}
+
+  /* Category tabs */
+  .category-tabs{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 22px;}
+  .category-tabs button{
+    font-family:'Work Sans',sans-serif;
+    font-size:.82rem;
+    font-weight:600;
+    padding:8px 14px;
+    border-radius:999px;
+    border:1px solid var(--line);
+    background:var(--card);
+    color:var(--slate);
+    cursor:pointer;
+  }
+  .category-tabs button.active{
+    background:var(--teal);
+    border-color:var(--teal);
+    color:#fff;
+  }
+
+  /* Flashcard */
+  .flashcard{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    min-height:220px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:30px 20px;
+    cursor:pointer;
+    box-shadow:0 1px 0 rgba(42,33,23,.03);
+    user-select:none;
+  }
+  .flashcard .primary{font-family:'Spectral',serif;font-size:2rem;font-weight:600;}
+  .flashcard .secondary{color:var(--gold);font-family:'IBM Plex Mono',monospace;font-size:1.05rem;margin-top:10px;min-height:1.4em;}
+  .flashcard .hint{color:var(--slate);font-size:.78rem;margin-top:18px;}
+  .card-nav{display:flex;align-items:center;justify-content:space-between;margin-top:16px;gap:12px;}
+  .card-nav button{
+    font-family:'Work Sans',sans-serif;
+    font-weight:600;
+    font-size:.85rem;
+    padding:9px 16px;
+    border-radius:8px;
+    border:1px solid var(--line);
+    background:var(--card);
+    cursor:pointer;
+  }
+  .progress-dots{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;}
+  .progress-dots span{width:6px;height:6px;border-radius:50%;background:var(--line);}
+  .progress-dots span.active{background:var(--teal);}
+
+  .audio-row{display:flex;gap:8px;justify-content:center;margin-top:14px;flex-wrap:wrap;}
+  .audio-row button{
+    font-family:'Work Sans',sans-serif;
+    font-size:.78rem;
+    font-weight:600;
+    padding:7px 12px;
+    border-radius:8px;
+    border:1px solid var(--line);
+    background:var(--paper);
+    cursor:pointer;
+  }
+  .audio-row button.recording{background:var(--bad);color:#fff;border-color:var(--bad);}
+  .listen-btn{
+    font-family:'Work Sans',sans-serif;
+    font-size:.85rem;
+    font-weight:600;
+    padding:9px 16px;
+    border-radius:8px;
+    border:1px solid var(--line);
+    background:var(--card);
+    cursor:pointer;
+    margin-bottom:12px;
+  }
+
+  /* Quiz */
+  .quiz-box{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:26px 22px;}
+  .quiz-options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px;}
+  .quiz-options button{
+    font-family:'Work Sans',sans-serif;
+    font-size:.92rem;
+    padding:13px 10px;
+    border-radius:9px;
+    border:1px solid var(--line);
+    background:var(--paper);
+    cursor:pointer;
+    text-align:left;
+  }
+  .quiz-options button.correct{background:var(--good);border-color:var(--good);color:#fff;}
+  .quiz-options button.wrong{background:var(--bad);border-color:var(--bad);color:#fff;}
+  .quiz-feedback{margin-top:12px;font-size:.85rem;color:var(--slate);min-height:1.2em;}
+  .quiz-score{margin-top:14px;font-family:'IBM Plex Mono',monospace;font-size:.82rem;color:var(--slate);}
+
+  /* Prefix table */
+  .prefix-table{width:100%;border-collapse:collapse;margin:18px 0;font-size:.9rem;}
+  .prefix-table th{
+    text-align:left;font-family:'IBM Plex Mono',monospace;font-size:.7rem;
+    text-transform:uppercase;letter-spacing:.08em;color:var(--gold);
+    border-bottom:1px solid var(--line);padding:8px 8px;
+  }
+  .prefix-table td{padding:9px 8px;border-bottom:1px solid var(--line);}
+  .prefix-table td.pfx{font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--teal);}
+  .prefix-note{
+    background:#F3EAD6;border:1px solid var(--line);border-radius:10px;
+    padding:14px 16px;font-size:.86rem;color:var(--ink);margin:16px 0;
+  }
+
+  /* Sentence builder */
+  .sentence-box{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:26px 22px;text-align:center;}
+  .sentence-line{font-family:'Spectral',serif;font-size:1.3rem;margin-bottom:4px;}
+  .sentence-sub{color:var(--slate);font-size:.85rem;margin-bottom:16px;}
+  .sentence-options{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .sentence-options button{
+    font-family:'Work Sans',sans-serif;font-size:.92rem;padding:12px 10px;
+    border-radius:9px;border:1px solid var(--line);background:var(--paper);cursor:pointer;
+  }
+  .sentence-result{margin-top:16px;font-size:.95rem;min-height:2.4em;}
+  .sentence-result .sn{font-family:'Spectral',serif;font-size:1.15rem;}
+  .sentence-result .en{color:var(--slate);font-size:.88rem;}
+  .sentence-score{margin-top:12px;font-family:'IBM Plex Mono',monospace;font-size:.82rem;color:var(--slate);}
+
+  footer{padding:34px 0 10px;text-align:center;color:var(--slate);font-size:.82rem;}
+  footer a{font-weight:700;text-decoration:none;color:var(--clay);}
+
+  @media (max-width:520px){
+    .quiz-options,.sentence-options{grid-template-columns:1fr;}
+    h1{font-size:1.7rem;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <p class="eyebrow">Talk, Taura</p>
+    <h1>Learn Shona &amp; English, together</h1>
+    <p class="tagline">Based on Joseph Musiiwa's bilingual reader <em>Talk, Taura: English, Shona readers</em> — built to teach in both directions, the same way the book does.</p>
+    <div class="dir-toggle" id="dirToggle">
+      <button id="dirShonaBtn" class="active" onclick="setDirection('shona')">I'm learning Shona</button>
+      <button id="dirEnglishBtn" onclick="setDirection('english')">I'm learning English</button>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Flashcards</p>
+    <h2 id="flashHeading">Everyday words</h2>
+    <div class="category-tabs" id="categoryTabs"></div>
+    <div class="flashcard" id="flashcard" onclick="flipCard()">
+      <div class="primary" id="cardPrimary"></div>
+      <div class="secondary" id="cardSecondary"></div>
+      <div class="hint" id="cardHint">Tap the card to flip</div>
+    </div>
+    <div class="audio-row">
+      <button onclick="event.stopPropagation();speakCurrent()">🔊 Hear it</button>
+      <button id="recordBtn" onclick="event.stopPropagation();toggleRecord()">🎙️ Record my voice</button>
+      <button id="playRecBtn" onclick="event.stopPropagation();playRecording()">▶️ Play my recording</button>
+    </div>
+    <div class="card-nav">
+      <button onclick="prevCard()">&larr; Previous</button>
+      <div class="progress-dots" id="progressDots"></div>
+      <button onclick="nextCard()">Next &rarr;</button>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Practice</p>
+    <h2>Quick quiz</h2>
+    <p style="color:var(--slate);">Test yourself on the category you're studying.</p>
+    <div class="quiz-box">
+      <h3 id="quizQuestion">Loading…</h3>
+      <p style="color:var(--slate);font-size:.85rem;margin:0 0 10px;">What does this mean?</p>
+      <button class="listen-btn" onclick="speak(currentQuizPrompt())">🔊 Hear it</button>
+      <div class="quiz-options" id="quizOptions"></div>
+      <div class="quiz-feedback" id="quizFeedback"></div>
+      <div class="quiz-score" id="quizScore"></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Word building</p>
+    <h2>How Shona words are built</h2>
+    <p style="color:var(--slate);">Most Shona words are a small <strong>prefix</strong> joined to a <strong>root</strong>. The prefix tells you the noun class — is it a person, a thing, a place, a big version, a small version?</p>
+    <div class="prefix-note">
+      <strong>zi-</strong> and <strong>svi-</strong> sit on the same root but pull it in opposite directions: <em>zikomana</em> is a big boy, <em>svikomana</em> is a tiny or skinny boy — a size contrast, not a singular/plural pair.
+    </div>
+    <table class="prefix-table" id="prefixTable">
+      <thead><tr><th>Prefix</th><th>Example</th><th>Meaning</th></tr></thead>
+      <tbody id="prefixTableBody"></tbody>
+    </table>
+    <div class="quiz-box" style="margin-top:20px;">
+      <h3 id="prefixQuizQuestion">Loading…</h3>
+      <p style="color:var(--slate);font-size:.85rem;margin:0 0 10px;">Which prefix completes this word?</p>
+      <div class="quiz-options" id="prefixQuizOptions"></div>
+      <div class="quiz-feedback" id="prefixQuizFeedback"></div>
+      <div class="quiz-score" id="prefixQuizScore"></div>
+    </div>
+
+    <h2 style="margin-top:34px;">Making it yours — possessive endings</h2>
+    <p style="color:var(--slate);">Endings like <strong>-angu</strong> (mine), <strong>-ako</strong> (yours), and <strong>-edu</strong> (ours) attach to a concord that matches the noun's class — that's why the ending changes shape depending on the word.</p>
+    <div class="prefix-note">
+      <strong>How to choose the right form:</strong> look at how the noun itself starts.
+      <br>• <strong>mu-</strong> class nouns (mostly people) like <em>mwana, murume, mukomana</em> → use <strong>w-</strong> (mwana <strong>wangu</strong>)
+      <br>• <strong>chi-</strong> class nouns (mostly things) like <em>chingwa, chinhu</em> → use <strong>ch-</strong> (chingwa <strong>changu</strong>)
+      <br>• borrowed nouns like <em>bhuku</em> → use <strong>r-</strong> (bhuku <strong>rangu</strong>)
+      <br>• class 9/10 nouns like <em>imbwa</em> or <em>nyika</em> → use <strong>y-</strong> for one, <strong>dz-</strong> for more than one (imbwa <strong>yangu</strong> = my dog, imbwa <strong>dzangu</strong> = my dogs) — the noun itself doesn't change, the ending does the counting.
+    </div>
+    <table class="prefix-table" id="suffixTable">
+      <thead><tr><th>Form</th><th>Example</th><th>Meaning</th></tr></thead>
+      <tbody id="suffixTableBody"></tbody>
+    </table>
+    <p style="color:var(--slate);font-size:.9rem;">In sentences: <em id="possessiveSentences"></em></p>
+    <div class="quiz-box" style="margin-top:20px;">
+      <h3 id="suffixQuizQuestion">Loading…</h3>
+      <p style="color:var(--slate);font-size:.85rem;margin:0 0 10px;">Which form matches this meaning?</p>
+      <div class="quiz-options" id="suffixQuizOptions"></div>
+      <div class="quiz-feedback" id="suffixQuizFeedback"></div>
+      <div class="quiz-score" id="suffixQuizScore"></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Word building</p>
+    <h2>Singular &amp; plural — which words change</h2>
+    <p style="color:var(--slate);">Some noun classes change shape for "more than one." Others — mostly class 9/10, and many borrowed words — stay exactly the same; you can only tell the number from the rest of the sentence, the same way <em>imbwa yangu</em> vs. <em>imbwa dzangu</em> worked above.</p>
+    <table class="prefix-table" id="changingPairsTable">
+      <thead><tr><th>One</th><th>Meaning</th><th>Many</th><th>Meaning</th></tr></thead>
+      <tbody id="changingPairsBody"></tbody>
+    </table>
+    <h3 style="margin-top:26px;">Stays the same either way</h3>
+    <table class="prefix-table" id="invariantNounsTable">
+      <thead><tr><th>Word</th><th>Meaning</th></tr></thead>
+      <tbody id="invariantNounsBody"></tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Word building</p>
+    <h2>Respect &amp; register</h2>
+    <p style="color:var(--slate);">Shona has a built-in way to show respect: swap the informal "u-" for "mu-"/"ma-" when speaking to an elder, a stranger, or someone you want to honor — the same shift you'd make between "you" (casual) and a more formal address.</p>
+    <table class="prefix-table" id="registerTable">
+      <thead><tr><th>Informal / casual</th><th>Respectful / elder</th><th>Meaning</th></tr></thead>
+      <tbody id="registerTableBody"></tbody>
+    </table>
+    <div class="prefix-note">
+      If someone greets you casually with <strong>Wakadii?</strong>, a natural informal reply is <strong>Ndiri bho</strong> — "I'm good." It's more relaxed than <em>Ndiripo</em>, the same way "I'm good" is more casual than "I am well."
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Put it together</p>
+    <h2>Sentence building</h2>
+    <p style="color:var(--slate);">Fill the blank using words you've already learned.</p>
+    <div class="sentence-box">
+      <div class="sentence-line" id="sentencePrompt"></div>
+      <div class="sentence-sub" id="sentenceSub"></div>
+      <div class="sentence-options" id="sentenceOptions"></div>
+      <div class="sentence-result" id="sentenceResult"></div>
+      <div class="sentence-score" id="sentenceScore"></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    Talk, Taura — inspired by Joseph Musiiwa's English–Shona reader. Sample vocabulary shown here; swap in your own book's exact words anytime in the <code>VOCAB</code> object.
+    <div style="margin-top:10px;">
+      <a href="https://books.google.com/books?id=pQYKBgAAQBAJ&printsec=frontcover" target="_blank" rel="noopener">📖 Get the full "Talk, Taura" book</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ---------- Vocabulary ---------- */
+/* General, widely-known Shona vocabulary — not extracted from any specific
+   copyrighted text. Swap in your own book's exact words/phrases here. */
+const VOCAB = {
+  greetings: { label:"Greetings", words:[
+    {en:"Hello", sn:"Mhoro"},
+    {en:"Good morning", sn:"Mangwanani"},
+    {en:"Good afternoon", sn:"Masikati"},
+    {en:"Good evening", sn:"Manheru"},
+    {en:"How are you?", sn:"Makadii?"},
+    {en:"I am fine", sn:"Ndiripo"},
+    {en:"Thank you", sn:"Ndatenda"},
+    {en:"Thank you (we thank you)", sn:"Tatenda"},
+    {en:"Thank you (well done)", sn:"Maita basa"},
+    {en:"Please", sn:"Ndapota"},
+    {en:"Yes", sn:"Hongu"},
+    {en:"No", sn:"Kwete"},
+    {en:"Goodbye", sn:"Chisarai"},
+    {en:"Welcome", sn:"Titambire"},
+  ]},
+  numbers: { label:"Numbers", words:[
+    {en:"One", sn:"Poshi"},
+    {en:"Two", sn:"Piri"},
+    {en:"Three", sn:"Tatu"},
+    {en:"Four", sn:"Ina"},
+    {en:"Five", sn:"Shanu"},
+    {en:"Six", sn:"Tanhatu"},
+    {en:"Seven", sn:"Nomwe"},
+    {en:"Eight", sn:"Sere"},
+    {en:"Nine", sn:"Pfumbamwe"},
+    {en:"Ten", sn:"Gumi"},
+    {en:"Twenty", sn:"Makumi maviri"},
+    {en:"Hundred", sn:"Zana"},
+  ]},
+  family: { label:"Family", words:[
+    {en:"Mother", sn:"Amai"},
+    {en:"Father", sn:"Baba"},
+    {en:"Sister", sn:"Hanzvadzi"},
+    {en:"Brother", sn:"Mukoma"},
+    {en:"Grandmother", sn:"Ambuya"},
+    {en:"Grandfather", sn:"Sekuru"},
+    {en:"Child", sn:"Mwana"},
+    {en:"Wife", sn:"Mudzimai"},
+    {en:"Husband", sn:"Murume"},
+    {en:"Friend", sn:"Shamwari"},
+  ]},
+  food: { label:"Food & Drink", words:[
+    {en:"Water", sn:"Mvura"},
+    {en:"Food", sn:"Chikafu"},
+    {en:"Bread", sn:"Chingwa"},
+    {en:"Milk", sn:"Mukaka"},
+    {en:"Meat", sn:"Nyama"},
+    {en:"Chicken", sn:"Huku"},
+    {en:"Vegetables", sn:"Muriwo"},
+    {en:"Sadza", sn:"Sadza"},
+    {en:"Fruit", sn:"Muchero"},
+    {en:"Tea", sn:"Tii"},
+  ]},
+  phrases: { label:"Common Phrases", words:[
+    {en:"What is your name?", sn:"Zita rako ndiani?"},
+    {en:"My name is...", sn:"Zita rangu ndini..."},
+    {en:"I don't understand", sn:"Handinzwisise"},
+    {en:"Where are you going?", sn:"Uri kuenda kupi?"},
+    {en:"I am hungry", sn:"Ndine nzara"},
+    {en:"I love you", sn:"Ndinokuda"},
+    {en:"Let's go", sn:"Handei"},
+    {en:"Come here", sn:"Uya pano"},
+    {en:"Sorry", sn:"Ndine urombo"},
+    {en:"See you later", sn:"Tichaonana"},
+    {en:"I am happy", sn:"Ndinofara"},
+    {en:"I am not feeling well", sn:"Handisi kunzwa zvakanaka"},
+    {en:"I have a headache", sn:"Musoro wangu unorwadza"},
+    {en:"Pray for me", sn:"Ndinyengetererei"},
+    {en:"Help me", sn:"Ndibatsire"},
+    {en:"Why are you crying?", sn:"Sei uchichema?"},
+    {en:"You are beautiful", sn:"Wakanaka"},
+  ]},
+  colors: { label:"Colors", words:[
+    {en:"Red", sn:"Tsvuku"},
+    {en:"Black", sn:"Nhema"},
+    {en:"White", sn:"Chena"},
+    {en:"Green", sn:"Girini"},
+    {en:"Blue", sn:"Bhuruu"},
+    {en:"Yellow", sn:"Yero"},
+    {en:"Brown", sn:"Bhurauni"},
+    {en:"Orange", sn:"Orenji"},
+  ]},
+  days: { label:"Days of the Week", words:[
+    {en:"Monday", sn:"Muvhuro"},
+    {en:"Tuesday", sn:"Chipiri"},
+    {en:"Wednesday", sn:"Chitatu"},
+    {en:"Thursday", sn:"China"},
+    {en:"Friday", sn:"Chishanu"},
+    {en:"Saturday", sn:"Mugovera"},
+    {en:"Sunday", sn:"Svondo"},
+  ]},
+  animals: { label:"Animals", words:[
+    {en:"Dog", sn:"Imbwa"},
+    {en:"Cat", sn:"Katsi"},
+    {en:"Cow", sn:"Mombe"},
+    {en:"Goat", sn:"Mbudzi"},
+    {en:"Chicken", sn:"Huku"},
+    {en:"Bird", sn:"Shiri"},
+    {en:"Fish", sn:"Hove"},
+    {en:"Lion", sn:"Shumba"},
+    {en:"Elephant", sn:"Nzou"},
+    {en:"Monkey", sn:"Tsoko"},
+  ]},
+  body: { label:"Body Parts", words:[
+    {en:"Head", sn:"Musoro"},
+    {en:"Hand", sn:"Ruoko"},
+    {en:"Leg", sn:"Gumbo"},
+    {en:"Eye", sn:"Ziso"},
+    {en:"Ear", sn:"Nzeve"},
+    {en:"Mouth", sn:"Muromo"},
+    {en:"Nose", sn:"Mhino"},
+    {en:"Heart", sn:"Mwoyo"},
+  ]},
+  school: { label:"School", words:[
+    {en:"Teacher", sn:"Mudzidzisi"},
+    {en:"Student", sn:"Mudzidzi"},
+    {en:"Book", sn:"Bhuku"},
+    {en:"Pen", sn:"Chinyoreso"},
+    {en:"School", sn:"Chikoro"},
+    {en:"Classroom", sn:"Kirasi"},
+    {en:"Question", sn:"Mubvunzo"},
+    {en:"Answer", sn:"Mhinduro"},
+  ]},
+};
+
+const CATEGORY_KEYS = Object.keys(VOCAB);
+
+/* ---------- Prefix data (Shona noun-class prefixes) ---------- */
+const PREFIXES = [
+  {p:"mu", ex:"munhu", meaning:"person (class 1)"},
+  {p:"va", ex:"vanhu", meaning:"people (class 2)"},
+  {p:"mu", ex:"muti", meaning:"tree (class 3)"},
+  {p:"mi", ex:"miti", meaning:"trees (class 4)"},
+  {p:"ri", ex:"rimwe", meaning:"one of a group (class 5, sing.)"},
+  {p:"ma", ex:"mazai", meaning:"eggs (class 6, plural)"},
+  {p:"chi", ex:"chinhu", meaning:"thing (class 7)"},
+  {p:"zvi", ex:"zvinhu", meaning:"things (class 8)"},
+  {p:"i", ex:"imbwa", meaning:"dog (class 9)"},
+  {p:"i", ex:"imbwa", meaning:"dogs (class 10) — stays the same word; classes 9/10 usually don't change form, plurality shows elsewhere in the sentence", invariant:true},
+  {p:"ru", ex:"ruoko", meaning:"hand/arm (class 11)"},
+  {p:"ka", ex:"kamwana", meaning:"small child (class 12, diminutive)"},
+  {p:"tu", ex:"tumwana", meaning:"small children (class 13, diminutive plural)"},
+  {p:"u", ex:"uswa", meaning:"grass (class 14, abstract/mass)"},
+  {p:"ku", ex:"kufamba", meaning:"to walk (class 15, verb-noun)"},
+  {p:"pa", ex:"pamba", meaning:"at the home (class 16, location)"},
+  {p:"ku", ex:"kumba", meaning:"towards home (class 17, location)"},
+  {p:"mu", ex:"mumba", meaning:"inside the home (class 18, location)"},
+  {p:"zi", ex:"zikomana", meaning:"big boy (augmentative)"},
+  {p:"svi", ex:"svikomana", meaning:"tiny/skinny boy (contrast to zi-)"},
+];
+
+/* ---------- Possessive endings ---------- */
+/* The ending (-angu/-ako/-edu = mine/yours/ours) attaches to a concord
+   that agrees with the noun's class. Only the concords + example
+   sentences Joseph confirmed directly are included — extend
+   POSSESSIVE_STEMS once more concords/classes are confirmed rather
+   than guessing new ones. */
+const ENDING_MEANING = {angu:"mine", ako:"yours", edu:"ours"};
+const POSSESSIVE_STEMS = [
+  {concord:"r-",  endings:{angu:"rangu",  ako:"rako",  edu:"redu"},  example:{sn:"Bhuku",   en:"book"}},
+  {concord:"w-",  endings:{angu:"wangu",  ako:"wako",  edu:"wedu"},  example:null,
+   perEnding:{angu:{sn:"Mwana", en:"child"}, ako:{sn:"Mukomana", en:"boy"}, edu:{sn:"Musha", en:"home"}}},
+  {concord:"ch-", endings:{angu:"changu", ako:"chako", edu:"chedu"}, example:{sn:"Chingwa", en:"bread"}},
+  {concord:"dz-", endings:{angu:"dzangu", ako:"dzako", edu:"dzedu"}, example:{sn:"Imbwa",   en:"dogs"}},
+  {concord:"y-",  endings:{angu:"yangu",  ako:"yako",  edu:"yedu"},  example:{sn:"Imbwa",   en:"dog"}},
+];
+/* y- = singular, dz- = plural of the SAME class (e.g. class 9/10) — the noun
+   itself doesn't change (imbwa stays imbwa either way), the concord on the
+   possessive is what signals one vs many. Confirmed directly by Joseph. */
+const POSSESSIVE_SENTENCES = [
+  {sn:"Chingwa changu", en:"My bread"},
+  {sn:"Bhuku rangu", en:"My book"},
+  {sn:"Imbwa dzedu", en:"Our dogs"},
+  {sn:"Mwana wangu", en:"My child"},
+  {sn:"Mukomana wako", en:"Your boy"},
+  {sn:"Musha wedu", en:"Our home"},
+  {sn:"Imbwa yangu", en:"My dog (one)"},
+  {sn:"Imbwa dzangu", en:"My dogs (more than one)"},
+  {sn:"Nyika yedu", en:"Our country"},
+];
+
+/* ---------- Singular & plural comparison ---------- */
+/* Some classes change shape in the plural, others (mostly class 9/10, and
+   many borrowed words) look identical either way — number is carried by
+   agreement elsewhere in the sentence instead (as with imbwa yangu/dzangu
+   above). Base set confirmed directly by Joseph (imbwa, hove, shiri, mota);
+   the rest are added as standard, widely-known Shona nouns following the
+   same class pattern — worth a native-speaker check like everything else here. */
+const CHANGING_PAIRS = [
+  {sg:"Muti", sgEn:"tree", pl:"Miti", plEn:"trees"},
+  {sg:"Mwana", sgEn:"child", pl:"Vana", plEn:"children"},
+  {sg:"Munhu", sgEn:"person", pl:"Vanhu", plEn:"people"},
+  {sg:"Chikoro", sgEn:"school", pl:"Zvikoro", plEn:"schools"},
+  {sg:"Chinhu", sgEn:"thing", pl:"Zvinhu", plEn:"things"},
+];
+const INVARIANT_NOUNS = [
+  {word:"Imbwa", en:"dog / dogs"},
+  {word:"Hove", en:"fish (one or many)"},
+  {word:"Shiri", en:"bird / birds"},
+  {word:"Mota", en:"car / cars"},
+  {word:"Mombe", en:"cow / cows"},
+  {word:"Mbudzi", en:"goat / goats"},
+  {word:"Nzou", en:"elephant / elephants"},
+  {word:"Shumba", en:"lion / lions"},
+];
+
+/* ---------- Respect / register pairs ---------- */
+/* Casual "u-"/"wa-" forms shift to "mu-"/"ma-" for elders, strangers, or
+   anyone you want to address respectfully. Confirmed directly by Joseph. */
+const REGISTER_PAIRS = [
+  {inf:"Wakadii?", resp:"Makadii?", en:"How are you?"},
+  {inf:"Unonzi ani?", resp:"Munonzi ani?", en:"What is your name?"},
+  {inf:"Uri kuitei?", resp:"Muri kuitei?", en:"What are you doing?"},
+];
+
+/* ---------- Sentence patterns ---------- */
+const SENTENCES = [
+  {sn_pre:"Ndinoda", sn_post:".", en_pre:"I want", en_post:".", pool:"food"},
+  {sn_pre:"Ndinofarira", sn_post:".", en_pre:"I like", en_post:".", pool:"colors"},
+  {sn_pre:"Mangwanani,", sn_post:"!", en_pre:"Good morning,", en_post:"!", pool:"family"},
+  {sn_pre:"Ndine", sn_post:".", en_pre:"I have", en_post:".", pool:"animals"},
+];
+
+/* ---------- State ---------- */
+let direction = "shona"; // 'shona' = learning Shona (primary=en, secondary=sn shown on flip); 'english' = learning English
+let currentCategory = CATEGORY_KEYS[0];
+let cardIndex = 0;
+let flipped = false;
+let quizScore = {right:0, total:0};
+let prefixQuizScore = {right:0, total:0};
+let sentenceScore = {right:0, total:0};
+let currentQuizWord = null;
+let currentPrefixQuiz = null;
+let suffixQuizScore = {right:0, total:0};
+let currentSuffixQuiz = null;
+let recordings = {}; // key -> blob url
+let mediaRecorder = null;
+let recordedChunks = [];
+let isRecording = false;
+
+/* ---------- Speech ---------- */
+function speak(text){
+  if(!('speechSynthesis' in window)) return;
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.rate = 0.9;
+  window.speechSynthesis.speak(utter);
+}
+function speakCurrent(){
+  const w = VOCAB[currentCategory].words[cardIndex];
+  speak(direction === "shona" ? w.sn : w.en);
+}
+
+/* ---------- Direction ---------- */
+function setDirection(dir){
+  direction = dir;
+  document.getElementById('dirShonaBtn').classList.toggle('active', dir==='shona');
+  document.getElementById('dirEnglishBtn').classList.toggle('active', dir==='english');
+  flipped = false;
+  renderCard();
+}
+
+/* ---------- Category tabs ---------- */
+function renderTabs(){
+  const el = document.getElementById('categoryTabs');
+  el.innerHTML = '';
+  CATEGORY_KEYS.forEach(key=>{
+    const btn = document.createElement('button');
+    btn.textContent = VOCAB[key].label;
+    if(key === currentCategory) btn.classList.add('active');
+    btn.onclick = ()=>{ currentCategory = key; cardIndex = 0; flipped=false; renderTabs(); renderCard(); newQuizQuestion(); };
+    el.appendChild(btn);
+  });
+}
+
+/* ---------- Flashcards ---------- */
+function renderCard(){
+  const words = VOCAB[currentCategory].words;
+  const w = words[cardIndex];
+  const front = direction === "shona" ? w.en : w.sn;
+  const back  = direction === "shona" ? w.sn : w.en;
+  document.getElementById('cardPrimary').textContent = flipped ? back : front;
+  document.getElementById('cardSecondary').textContent = flipped ? front : '';
+  document.getElementById('cardHint').textContent = flipped ? 'Tap to flip back' : 'Tap the card to flip';
+  const dots = document.getElementById('progressDots');
+  dots.innerHTML = '';
+  words.forEach((_,i)=>{
+    const d = document.createElement('span');
+    if(i===cardIndex) d.classList.add('active');
+    dots.appendChild(d);
+  });
+  updateRecordButtons();
+}
+function flipCard(){ flipped = !flipped; renderCard(); }
+function nextCard(){
+  const words = VOCAB[currentCategory].words;
+  cardIndex = (cardIndex + 1) % words.length;
+  flipped = false;
+  renderCard();
+}
+function prevCard(){
+  const words = VOCAB[currentCategory].words;
+  cardIndex = (cardIndex - 1 + words.length) % words.length;
+  flipped = false;
+  renderCard();
+}
+
+/* ---------- Recording ---------- */
+function recKey(){
+  return currentCategory + ':' + cardIndex;
+}
+function updateRecordButtons(){
+  const playBtn = document.getElementById('playRecBtn');
+  playBtn.disabled = !recordings[recKey()];
+  playBtn.style.opacity = recordings[recKey()] ? 1 : .5;
+}
+async function toggleRecord(){
+  const btn = document.getElementById('recordBtn');
+  if(isRecording){
+    mediaRecorder.stop();
+    isRecording = false;
+    btn.classList.remove('recording');
+    btn.textContent = '🎙️ Record my voice';
+    return;
+  }
+  try{
+    const stream = await navigator.mediaDevices.getUserMedia({audio:true});
+    recordedChunks = [];
+    mediaRecorder = new MediaRecorder(stream);
+    mediaRecorder.ondataavailable = e => { if(e.data.size>0) recordedChunks.push(e.data); };
+    mediaRecorder.onstop = ()=>{
+      const blob = new Blob(recordedChunks, {type:'audio/webm'});
+      recordings[recKey()] = URL.createObjectURL(blob);
+      stream.getTracks().forEach(t=>t.stop());
+      updateRecordButtons();
+    };
+    mediaRecorder.start();
+    isRecording = true;
+    btn.classList.add('recording');
+    btn.textContent = '⏹️ Stop';
+  }catch(err){
+    alert("Couldn't access the microphone. You can still use 'Hear it' for a synthetic voice.");
+  }
+}
+function playRecording(){
+  const url = recordings[recKey()];
+  if(!url) return;
+  new Audio(url).play();
+}
+
+/* ---------- Vocabulary quiz ---------- */
+function currentQuizPrompt(){
+  if(!currentQuizWord) return '';
+  return direction === "shona" ? currentQuizWord.sn : currentQuizWord.en;
+}
+function newQuizQuestion(){
+  const words = VOCAB[currentCategory].words;
+  const idx = Math.floor(Math.random()*words.length);
+  currentQuizWord = words[idx];
+  const promptText = direction === "shona" ? currentQuizWord.sn : currentQuizWord.en;
+  const correctAnswer = direction === "shona" ? currentQuizWord.en : currentQuizWord.sn;
+  document.getElementById('quizQuestion').textContent = promptText;
+  const opts = new Set([correctAnswer]);
+  while(opts.size < Math.min(4, words.length)){
+    const rand = words[Math.floor(Math.random()*words.length)];
+    opts.add(direction === "shona" ? rand.en : rand.sn);
+  }
+  const optsArr = Array.from(opts).sort(()=>Math.random()-0.5);
+  const optEl = document.getElementById('quizOptions');
+  optEl.innerHTML = '';
+  document.getElementById('quizFeedback').textContent = '';
+  optsArr.forEach(opt=>{
+    const btn = document.createElement('button');
+    btn.textContent = opt;
+    btn.onclick = ()=> answerQuiz(btn, opt, correctAnswer);
+    optEl.appendChild(btn);
+  });
+}
+function answerQuiz(btn, chosen, correct){
+  const buttons = document.querySelectorAll('#quizOptions button');
+  buttons.forEach(b=>b.disabled = true);
+  quizScore.total++;
+  if(chosen === correct){
+    btn.classList.add('correct');
+    quizScore.right++;
+    document.getElementById('quizFeedback').textContent = 'Correct!';
+  } else {
+    btn.classList.add('wrong');
+    buttons.forEach(b=>{ if(b.textContent===correct) b.classList.add('correct'); });
+    document.getElementById('quizFeedback').textContent = 'Not quite — correct answer highlighted.';
+  }
+  document.getElementById('quizScore').textContent = `Score: ${quizScore.right} / ${quizScore.total}`;
+  setTimeout(newQuizQuestion, 1400);
+}
+
+/* ---------- Prefix quiz ---------- */
+function newPrefixQuiz(){
+  const pool = PREFIXES.filter(p=>!p.invariant);
+  const idx = Math.floor(Math.random()*pool.length);
+  currentPrefixQuiz = pool[idx];
+  const root = currentPrefixQuiz.ex.replace(new RegExp('^'+currentPrefixQuiz.p), '');
+  document.getElementById('prefixQuizQuestion').textContent = `___${root}  (${currentPrefixQuiz.meaning})`;
+  const opts = new Set([currentPrefixQuiz.p]);
+  while(opts.size < 4){
+    opts.add(PREFIXES[Math.floor(Math.random()*PREFIXES.length)].p);
+  }
+  const optsArr = Array.from(opts).sort(()=>Math.random()-0.5);
+  const el = document.getElementById('prefixQuizOptions');
+  el.innerHTML = '';
+  document.getElementById('prefixQuizFeedback').textContent = '';
+  optsArr.forEach(opt=>{
+    const btn = document.createElement('button');
+    btn.textContent = opt + '-';
+    btn.onclick = ()=> answerPrefixQuiz(btn, opt);
+    el.appendChild(btn);
+  });
+}
+function answerPrefixQuiz(btn, chosen){
+  const buttons = document.querySelectorAll('#prefixQuizOptions button');
+  buttons.forEach(b=>b.disabled = true);
+  prefixQuizScore.total++;
+  if(chosen === currentPrefixQuiz.p){
+    btn.classList.add('correct');
+    prefixQuizScore.right++;
+    document.getElementById('prefixQuizFeedback').textContent = `Correct — ${currentPrefixQuiz.ex} (${currentPrefixQuiz.meaning})`;
+  } else {
+    btn.classList.add('wrong');
+    buttons.forEach(b=>{ if(b.textContent === currentPrefixQuiz.p+'-') b.classList.add('correct'); });
+    document.getElementById('prefixQuizFeedback').textContent = `It's ${currentPrefixQuiz.ex} (${currentPrefixQuiz.meaning})`;
+  }
+  document.getElementById('prefixQuizScore').textContent = `Score: ${prefixQuizScore.right} / ${prefixQuizScore.total}`;
+  setTimeout(newPrefixQuiz, 1600);
+}
+function renderPrefixTable(){
+  const body = document.getElementById('prefixTableBody');
+  body.innerHTML = '';
+  PREFIXES.forEach(row=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td class="pfx">${row.p}-</td><td>${row.ex}</td><td>${row.meaning}</td>`;
+    body.appendChild(tr);
+  });
+}
+
+/* ---------- Possessive ending quiz & table ---------- */
+function renderSuffixTable(){
+  const body = document.getElementById('suffixTableBody');
+  body.innerHTML = '';
+  POSSESSIVE_STEMS.forEach(stem=>{
+    ['angu','ako','edu'].forEach(key=>{
+      const form = stem.endings[key];
+      const ex = stem.perEnding ? stem.perEnding[key] : stem.example;
+      const noun = ex ? `${ex.sn} ${form}` : `(${stem.concord} words) ${form}`;
+      const posWord = ENDING_MEANING[key]==='mine'?'my':ENDING_MEANING[key]==='yours'?'your':'our';
+      const meaning = ex ? `${posWord} ${ex.en}` : ENDING_MEANING[key];
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td class="pfx">${form}</td><td>${noun}</td><td>${meaning}</td>`;
+      body.appendChild(tr);
+    });
+  });
+  const sentEl = document.getElementById('possessiveSentences');
+  if(sentEl){
+    sentEl.textContent = POSSESSIVE_SENTENCES.map(s=>`"${s.sn}" (${s.en})`).join(' · ');
+  }
+}
+function newSuffixQuiz(){
+  const stem = POSSESSIVE_STEMS[Math.floor(Math.random()*POSSESSIVE_STEMS.length)];
+  const key = ['angu','ako','edu'][Math.floor(Math.random()*3)];
+  currentSuffixQuiz = {stem, key, correct:stem.endings[key]};
+  const ex = stem.perEnding ? stem.perEnding[key] : stem.example;
+  const posWord = ENDING_MEANING[key]==='mine'?'my':ENDING_MEANING[key]==='yours'?'your':'our';
+  const label = ex ? `${ex.sn} — ${posWord} ${ex.en}` : `${ENDING_MEANING[key]} (${stem.concord} words)`;
+  document.getElementById('suffixQuizQuestion').textContent = label;
+  const opts = new Set([currentSuffixQuiz.correct]);
+  while(opts.size < 4){
+    const randStem = POSSESSIVE_STEMS[Math.floor(Math.random()*POSSESSIVE_STEMS.length)];
+    opts.add(randStem.endings[key]);
+  }
+  const optsArr = Array.from(opts).sort(()=>Math.random()-0.5);
+  const el = document.getElementById('suffixQuizOptions');
+  el.innerHTML = '';
+  document.getElementById('suffixQuizFeedback').textContent = '';
+  optsArr.forEach(opt=>{
+    const btn = document.createElement('button');
+    btn.textContent = opt;
+    btn.onclick = ()=> answerSuffixQuiz(btn, opt);
+    el.appendChild(btn);
+  });
+}
+function answerSuffixQuiz(btn, chosen){
+  const buttons = document.querySelectorAll('#suffixQuizOptions button');
+  buttons.forEach(b=>b.disabled = true);
+  suffixQuizScore.total++;
+  if(chosen === currentSuffixQuiz.correct){
+    btn.classList.add('correct');
+    suffixQuizScore.right++;
+    document.getElementById('suffixQuizFeedback').textContent = 'Correct!';
+  } else {
+    btn.classList.add('wrong');
+    buttons.forEach(b=>{ if(b.textContent === currentSuffixQuiz.correct) b.classList.add('correct'); });
+    document.getElementById('suffixQuizFeedback').textContent = `It's ${currentSuffixQuiz.correct}.`;
+  }
+  document.getElementById('suffixQuizScore').textContent = `Score: ${suffixQuizScore.right} / ${suffixQuizScore.total}`;
+  setTimeout(newSuffixQuiz, 1600);
+}
+
+function renderPluralComparison(){
+  const changeBody = document.getElementById('changingPairsBody');
+  changeBody.innerHTML = '';
+  CHANGING_PAIRS.forEach(row=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td class="pfx">${row.sg}</td><td>${row.sgEn}</td><td class="pfx">${row.pl}</td><td>${row.plEn}</td>`;
+    changeBody.appendChild(tr);
+  });
+  const sameBody = document.getElementById('invariantNounsBody');
+  sameBody.innerHTML = '';
+  INVARIANT_NOUNS.forEach(row=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td class="pfx">${row.word}</td><td>${row.en}</td>`;
+    sameBody.appendChild(tr);
+  });
+}
+
+function renderRegisterTable(){
+  const body = document.getElementById('registerTableBody');
+  body.innerHTML = '';
+  REGISTER_PAIRS.forEach(row=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td class="pfx">${row.inf}</td><td class="pfx">${row.resp}</td><td>${row.en}</td>`;
+    body.appendChild(tr);
+  });
+}
+
+/* ---------- Sentence builder ---------- */
+let currentSentence = null;
+let currentSentenceWord = null;
+function newSentence(){
+  const pattern = SENTENCES[Math.floor(Math.random()*SENTENCES.length)];
+  currentSentence = pattern;
+  const words = VOCAB[pattern.pool].words;
+  currentSentenceWord = words[Math.floor(Math.random()*words.length)];
+  document.getElementById('sentencePrompt').textContent = `${pattern.sn_pre} ___${pattern.sn_post}`;
+  document.getElementById('sentenceSub').textContent = `${pattern.en_pre} ___${pattern.en_post}`;
+  document.getElementById('sentenceResult').innerHTML = '';
+  const opts = new Set([currentSentenceWord.sn]);
+  while(opts.size < Math.min(4, words.length)){
+    opts.add(words[Math.floor(Math.random()*words.length)].sn);
+  }
+  const optsArr = Array.from(opts).sort(()=>Math.random()-0.5);
+  const el = document.getElementById('sentenceOptions');
+  el.innerHTML = '';
+  optsArr.forEach(opt=>{
+    const btn = document.createElement('button');
+    btn.textContent = opt;
+    btn.onclick = ()=> answerSentence(btn, opt);
+    el.appendChild(btn);
+  });
+}
+function answerSentence(btn, chosen){
+  const buttons = document.querySelectorAll('#sentenceOptions button');
+  buttons.forEach(b=>b.disabled = true);
+  sentenceScore.total++;
+  const correct = chosen === currentSentenceWord.sn;
+  if(correct){ btn.classList.add('correct'); sentenceScore.right++; }
+  else {
+    btn.classList.add('wrong');
+    buttons.forEach(b=>{ if(b.textContent === currentSentenceWord.sn) b.classList.add('correct'); });
+  }
+  const fullSn = `${currentSentence.sn_pre} ${currentSentenceWord.sn}${currentSentence.sn_post}`;
+  const fullEn = `${currentSentence.en_pre} ${currentSentenceWord.en}${currentSentence.en_post}`;
+  document.getElementById('sentenceResult').innerHTML =
+    `<div class="sn">${fullSn}</div><div class="en">${fullEn}</div>
+     <button class="listen-btn" style="margin-top:10px;" onclick="speak('${fullSn.replace(/'/g,"\\'")}')">🔊 Hear it</button>`;
+  document.getElementById('sentenceScore').textContent = `Score: ${sentenceScore.right} / ${sentenceScore.total}`;
+  setTimeout(newSentence, 3200);
+}
+
+/* ---------- Init ---------- */
+renderTabs();
+renderCard();
+newQuizQuestion();
+renderPrefixTable();
+newPrefixQuiz();
+renderSuffixTable();
+newSuffixQuiz();
+renderPluralComparison();
+renderRegisterTable();
+newSentence();
+</script>
+</body>
+</html>
