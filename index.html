@@ -256,7 +256,7 @@
     <div class="quiz-box">
       <h3 id="quizQuestion">Loading…</h3>
       <p style="color:var(--slate);font-size:.85rem;margin:0 0 10px;">What does this mean?</p>
-      <button class="listen-btn" onclick="speak(currentQuizPrompt())">🔊 Hear it</button>
+      <button class="listen-btn" onclick="speakQuizPrompt()">🔊 Hear it</button>
       <div class="quiz-options" id="quizOptions"></div>
       <div class="quiz-feedback" id="quizFeedback"></div>
       <div class="quiz-score" id="quizScore"></div>
@@ -617,9 +617,30 @@ function speak(text){
   utter.rate = 0.9;
   window.speechSynthesis.speak(utter);
 }
+function slugify(s){
+  return s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
+}
+/* Plays a real recorded pronunciation from /audio if one exists for this
+   category+word; otherwise falls back to synthetic speech. */
+function playWordAudio(category, snWord, fallbackText){
+  const path = `audio/${category}-${slugify(snWord)}.mp3`;
+  const audio = new Audio(path);
+  let handled = false;
+  audio.addEventListener('canplaythrough', ()=>{
+    if(!handled){ handled = true; audio.play().catch(()=> speak(fallbackText)); }
+  });
+  audio.addEventListener('error', ()=>{
+    if(!handled){ handled = true; speak(fallbackText); }
+  });
+  audio.load();
+}
 function speakCurrent(){
   const w = VOCAB[currentCategory].words[cardIndex];
-  speak(direction === "shona" ? w.sn : w.en);
+  if(direction === "shona"){
+    playWordAudio(currentCategory, w.sn, w.sn);
+  } else {
+    speak(w.en);
+  }
 }
 
 /* ---------- Direction ---------- */
@@ -740,6 +761,14 @@ async function downloadRecording(){
 function currentQuizPrompt(){
   if(!currentQuizWord) return '';
   return direction === "shona" ? currentQuizWord.sn : currentQuizWord.en;
+}
+function speakQuizPrompt(){
+  if(!currentQuizWord) return;
+  if(direction === "shona"){
+    playWordAudio(currentCategory, currentQuizWord.sn, currentQuizWord.sn);
+  } else {
+    speak(currentQuizWord.en);
+  }
 }
 function newQuizQuestion(){
   const words = VOCAB[currentCategory].words;
