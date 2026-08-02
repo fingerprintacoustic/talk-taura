@@ -620,19 +620,33 @@ function speak(text){
 function slugify(s){
   return s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
 }
-/* Plays a real recorded pronunciation from /audio if one exists for this
-   category+word; otherwise falls back to synthetic speech. */
+/* Plays a real recorded pronunciation if one exists for this category+word.
+   Checks both /audio and /audio2 folders, and both .webm and .mp3
+   extensions (recordings have been uploaded in different formats/folders
+   over time), before falling back to synthetic speech. */
 function playWordAudio(category, snWord, fallbackText){
-  const path = `audio/${category}-${slugify(snWord)}.mp3`;
-  const audio = new Audio(path);
-  let handled = false;
-  audio.addEventListener('canplaythrough', ()=>{
-    if(!handled){ handled = true; audio.play().catch(()=> speak(fallbackText)); }
-  });
-  audio.addEventListener('error', ()=>{
-    if(!handled){ handled = true; speak(fallbackText); }
-  });
-  audio.load();
+  const slug = slugify(snWord);
+  const candidates = [
+    `audio/${category}-${slug}.webm`,
+    `audio2/${category}-${slug}.webm`,
+    `audio/${category}-${slug}.mp3`,
+    `audio2/${category}-${slug}.mp3`
+  ];
+  let i = 0;
+  function tryNext(){
+    if(i >= candidates.length){ speak(fallbackText); return; }
+    const path = candidates[i++];
+    const audio = new Audio(path);
+    let handled = false;
+    audio.addEventListener('canplaythrough', ()=>{
+      if(!handled){ handled = true; audio.play().catch(tryNext); }
+    });
+    audio.addEventListener('error', ()=>{
+      if(!handled){ handled = true; tryNext(); }
+    });
+    audio.load();
+  }
+  tryNext();
 }
 function speakCurrent(){
   const w = VOCAB[currentCategory].words[cardIndex];
