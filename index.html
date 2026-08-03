@@ -116,6 +116,26 @@
   .flashcard .primary{font-family:'Spectral',serif;font-size:2rem;font-weight:600;}
   .flashcard .secondary{color:var(--gold);font-family:'IBM Plex Mono',monospace;font-size:1.05rem;margin-top:10px;min-height:1.4em;}
   .flashcard .hint{color:var(--slate);font-size:.78rem;margin-top:18px;}
+  .flashcard .card-emoji{font-size:2.8rem;line-height:1;margin-bottom:10px;}
+  .reading-ladder{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:16px 18px;margin-top:14px;
+  }
+  .reading-ladder .rl-title{
+    font-family:'IBM Plex Mono',monospace;font-size:.7rem;text-transform:uppercase;
+    letter-spacing:.08em;color:var(--gold);margin-bottom:10px;
+  }
+  .reading-row{display:flex;align-items:baseline;gap:10px;margin-bottom:8px;flex-wrap:wrap;}
+  .reading-row:last-child{margin-bottom:0;}
+  .reading-row .rl-label{width:64px;flex:0 0 auto;font-size:.72rem;color:var(--slate);font-family:'Work Sans',sans-serif;}
+  .reading-row .rl-content{font-family:'Spectral',serif;font-size:1.15rem;}
+  .reading-row.vowels .rl-content{letter-spacing:.12em;color:var(--clay);}
+  .reading-row.syllables .rl-content span{
+    padding:1px 3px;border-bottom:2px solid var(--line);margin-right:2px;display:inline-block;
+  }
+  .reading-row.syllables .rl-content span:nth-child(odd){border-color:var(--teal);}
+  .reading-row.syllables .rl-content span:nth-child(even){border-color:var(--gold);}
+  .reading-row.word .rl-content{font-weight:700;}
   .card-nav{display:flex;align-items:center;justify-content:space-between;margin-top:16px;gap:12px;}
   .card-nav button{
     font-family:'Work Sans',sans-serif;
@@ -230,9 +250,16 @@
     <h2 id="flashHeading">Everyday words</h2>
     <div class="category-tabs" id="categoryTabs"></div>
     <div class="flashcard" id="flashcard" onclick="flipCard()">
+      <div class="card-emoji" id="cardEmoji"></div>
       <div class="primary" id="cardPrimary"></div>
       <div class="secondary" id="cardSecondary"></div>
-      <div class="hint" id="cardHint">Tap the card to flip</div>
+      <div class="hint" id="cardHint">Tap the card to flip &middot; swipe for next/previous</div>
+    </div>
+    <div class="reading-ladder" id="readingLadder">
+      <div class="rl-title">Sound it out</div>
+      <div class="reading-row vowels"><span class="rl-label">Vowels</span><span class="rl-content" id="rlVowels"></span></div>
+      <div class="reading-row syllables"><span class="rl-label">Syllables</span><span class="rl-content" id="rlSyllables"></span></div>
+      <div class="reading-row word"><span class="rl-label">Word</span><span class="rl-content" id="rlWord"></span></div>
     </div>
     <div class="audio-row">
       <button onclick="event.stopPropagation();speakCurrent()">🔊 Hear it</button>
@@ -497,6 +524,79 @@ const VOCAB = {
 
 const CATEGORY_KEYS = Object.keys(VOCAB);
 
+/* ---------- Picture cue per word (keyed by English label) ---------- */
+const EMOJI_MAP = {
+  "Hello":"👋","Good morning":"🌅","Good afternoon":"☀️","Good evening":"🌆",
+  "How are you?":"🤔","I am fine":"🙂","Thank you":"🙏","Thank you (we thank you)":"🙏",
+  "Thank you (well done)":"👏","Please":"🙏","Yes":"✅","No":"❌","Goodbye":"👋","Welcome":"🤗",
+  "One":"1️⃣","Two":"2️⃣","Three":"3️⃣","Four":"4️⃣","Five":"5️⃣","Six":"6️⃣","Seven":"7️⃣",
+  "Eight":"8️⃣","Nine":"9️⃣","Ten":"🔟","Twenty":"2️⃣0️⃣","Hundred":"💯",
+  "Mother":"👩","Father":"👨","Sister":"👧","Brother":"👦","Grandmother":"👵","Grandfather":"👴",
+  "Child":"🧒","Wife":"👰","Husband":"🤵","Friend":"🧑‍🤝‍🧑",
+  "Water":"💧","Food":"🍽️","Bread":"🍞","Milk":"🥛","Meat":"🥩","Chicken":"🍗","Vegetables":"🥦",
+  "Sadza":"🍚","Fruit":"🍎","Tea":"🍵",
+  "What is your name?":"❓","My name is...":"💬","I don't understand":"🤷","Where are you going?":"🚶",
+  "I am hungry":"🍽️","I love you":"❤️","Let's go":"🚶","Come here":"👉","Sorry":"😔",
+  "See you later":"👋","I am happy":"😊","I am not feeling well":"🤒","I have a headache":"🤕",
+  "Pray for me":"🙏","Help me":"🆘","Why are you crying?":"😢","You are beautiful":"✨",
+  "Red":"🔴","Black":"⚫","White":"⚪","Green":"🟢","Blue":"🔵","Yellow":"🟡","Brown":"🟤","Orange":"🟠",
+  "Monday":"📅","Tuesday":"📅","Wednesday":"📅","Thursday":"📅","Friday":"📅","Saturday":"📅","Sunday":"📅",
+  "Dog":"🐕","Cat":"🐈","Cow":"🐄","Goat":"🐐","Bird":"🐦","Fish":"🐟","Lion":"🦁","Elephant":"🐘","Monkey":"🐒",
+  "Head":"🗣️","Hand":"✋","Leg":"🦵","Eye":"👁️","Ear":"👂","Mouth":"👄","Nose":"👃","Heart":"❤️",
+  "Teacher":"🧑‍🏫","Student":"🎓","Book":"📖","Pen":"🖊️","School":"🏫","Classroom":"🏫",
+  "Question":"❓","Answer":"💡",
+};
+const CATEGORY_EMOJI_FALLBACK = {
+  greetings:"👋", numbers:"🔢", family:"👪", food:"🍽️", phrases:"💬",
+  colors:"🎨", days:"📅", animals:"🐾", body:"🧍", school:"🏫",
+};
+/* A few English labels repeat across categories with different senses
+   (e.g. "Chicken" as food vs. as the live animal) — override those here
+   so the picture matches the actual sense, keyed by category. */
+const EMOJI_OVERRIDE_BY_CATEGORY = {
+  animals: { "Chicken":"🐔" },
+  food:    { "Chicken":"🍗" },
+};
+function emojiFor(category, w){
+  const override = EMOJI_OVERRIDE_BY_CATEGORY[category] && EMOJI_OVERRIDE_BY_CATEGORY[category][w.en];
+  return override || EMOJI_MAP[w.en] || CATEGORY_EMOJI_FALLBACK[category] || "📘";
+}
+
+/* ---------- Reading ladder: vowels -> syllables -> full word ----------
+   Shona syllables are (almost always) open, built from an onset of 0-3
+   consonants (including digraphs like bh/ch/dh/mb/nh/ny/nz/sv/tsv/vh/zh/zv)
+   followed by one vowel. Splitting on "consonant run + vowel" gives an
+   accurate syllable break for the vast majority of Shona words without
+   needing hand-tagged data for all 104 entries. */
+function syllabify(word){
+  const clean = word.replace(/[^A-Za-z' -]/g, ' ').trim();
+  const parts = clean.split(/\s+/).filter(Boolean);
+  const syllablesByPart = parts.map(part=>{
+    const matches = part.match(/[^aeiouAEIOU]*[aeiouAEIOU]/g);
+    if(!matches) return [part];
+    // Attach any trailing consonants (rare in Shona) to the last syllable.
+    const joined = matches.join('');
+    if(joined.length < part.length){
+      matches[matches.length-1] += part.slice(joined.length);
+    }
+    return matches;
+  });
+  return syllablesByPart;
+}
+function vowelsOf(word){
+  const v = word.match(/[aeiouAEIOU]/g);
+  return v ? v.join(' - ') : '';
+}
+function renderReadingLadder(snWord){
+  document.getElementById('rlVowels').textContent = vowelsOf(snWord).toLowerCase();
+  const syllablesByPart = syllabify(snWord);
+  const html = syllablesByPart.map(sylls =>
+    sylls.map(s=>`<span>${s.toLowerCase()}</span>`).join('')
+  ).join(' ');
+  document.getElementById('rlSyllables').innerHTML = html;
+  document.getElementById('rlWord').textContent = snWord;
+}
+
 /* ---------- Prefix data (Shona noun-class prefixes) ---------- */
 const PREFIXES = [
   {p:"mu", ex:"munhu", meaning:"person (class 1)"},
@@ -683,11 +783,16 @@ function renderTabs(){
 function renderCard(){
   const words = VOCAB[currentCategory].words;
   const w = words[cardIndex];
-  const front = direction === "shona" ? w.en : w.sn;
-  const back  = direction === "shona" ? w.sn : w.en;
+  // Always show the Shona word first (tap to reveal the translation) —
+  // this suits reading/pronunciation practice better than showing
+  // English first, in both learning directions.
+  const front = w.sn;
+  const back  = w.en;
   document.getElementById('cardPrimary').textContent = flipped ? back : front;
   document.getElementById('cardSecondary').textContent = flipped ? front : '';
-  document.getElementById('cardHint').textContent = flipped ? 'Tap to flip back' : 'Tap the card to flip';
+  document.getElementById('cardHint').textContent = flipped ? 'Tap to flip back \u00b7 swipe for next/previous' : 'Tap the card to flip \u00b7 swipe for next/previous';
+  document.getElementById('cardEmoji').textContent = emojiFor(currentCategory, w);
+  renderReadingLadder(w.sn);
   const dots = document.getElementById('progressDots');
   dots.innerHTML = '';
   words.forEach((_,i)=>{
@@ -710,6 +815,32 @@ function prevCard(){
   flipped = false;
   renderCard();
 }
+
+/* ---------- Swipe navigation ---------- */
+(function setupSwipe(){
+  const el = document.getElementById('flashcard');
+  let startX = 0, startY = 0, tracking = false, suppressClick = false;
+  const THRESHOLD = 40; // px
+  el.addEventListener('touchstart', (e)=>{
+    if(e.touches.length !== 1) return;
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+    tracking = true;
+  }, {passive:true});
+  el.addEventListener('touchend', (e)=>{
+    if(!tracking) return;
+    tracking = false;
+    const dx = e.changedTouches[0].clientX - startX;
+    const dy = e.changedTouches[0].clientY - startY;
+    if(Math.abs(dx) > THRESHOLD && Math.abs(dx) > Math.abs(dy) * 1.5){
+      suppressClick = true;
+      if(dx < 0) nextCard(); else prevCard();
+    }
+  }, {passive:true});
+  el.addEventListener('click', (e)=>{
+    if(suppressClick){ suppressClick = false; e.stopPropagation(); e.preventDefault(); }
+  }, true);
+})();
 
 /* ---------- Recording ---------- */
 function recKey(){
